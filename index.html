@@ -76,9 +76,21 @@
     overflow: hidden;
     overscroll-behavior: contain;
     touch-action: none;
-    transition: opacity 1s ease .3s, visibility 0s linear 1.4s;
+    transition: opacity 1.2s ease .5s, visibility 0s linear 1.8s, transform 1.4s cubic-bezier(.7,0,.2,1);
+    transform-origin: center center;
   }
-  .intro.open { opacity: 0; visibility: hidden; pointer-events: none; }
+  .intro.open { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.15); }
+  .intro.opening .intro-inner { animation: introContentOut .8s cubic-bezier(.5,0,.2,1) forwards; }
+  .intro.opening .intro-bg { animation: bgReveal 1.4s cubic-bezier(.7,0,.2,1) forwards; }
+  @keyframes introContentOut {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-20px) scale(1.08); opacity: 0; }
+  }
+  @keyframes bgReveal {
+    0% { filter: brightness(0.45) contrast(1.05); transform: scale(1.05); }
+    50% { filter: brightness(0.85) contrast(1.1); transform: scale(1.08); }
+    100% { filter: brightness(1.2) contrast(1) blur(2px); transform: scale(1.2); }
+  }
   html.locked, body.locked { overflow: hidden !important; height: 100vh; position: fixed; width: 100%; }
   .intro-bg {
     position: absolute; inset: 0;
@@ -116,10 +128,11 @@
     max-width: 12ch;
     text-shadow: 0 4px 24px rgba(0,0,0,0.6);
   }
-  .intro-title span { display: block; opacity: 0; transform: translateY(30px); animation: riseWord 1.2s cubic-bezier(.2,.7,.2,1) forwards; }
-  .intro-title span:nth-child(1) { animation-delay: 1.5s; }
-  .intro-title span:nth-child(2) { animation-delay: 1.7s; }
-  .intro-title span:nth-child(3) { animation-delay: 1.9s; }
+  .intro-title span { display: block; opacity: 0; transform: translateY(30px); animation: introRise 1.2s cubic-bezier(.2,.7,.2,1) forwards; }
+  .intro-title span:nth-child(1) { animation-delay: 1.4s; }
+  .intro-title span:nth-child(2) { animation-delay: 1.6s; }
+  .intro-title span:nth-child(3) { animation-delay: 1.8s; }
+  @keyframes introRise { to { opacity: 1; transform: translateY(0); } }
   .unlock-btn {
     width: 68px; height: 68px; border-radius: 50%;
     background: rgba(255,255,255,0.08);
@@ -131,9 +144,31 @@
     opacity: 0;
     animation: fadeIn 1s ease 2.4s forwards, pulseRing 2.4s ease-in-out 3s infinite;
     transition: background .3s ease, transform .2s ease;
+    position: relative;
+    overflow: visible;
   }
   .unlock-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
-  .unlock-btn:active { transform: scale(0.95); }
+  .unlock-btn:active { transform: scale(0.92); }
+  .unlock-btn svg { transition: transform .5s cubic-bezier(.5,1.4,.5,1); }
+  .unlock-btn .shackle { transform-origin: 12px 11px; transition: transform .4s cubic-bezier(.7,0,.3,1); }
+  .intro.opening .unlock-btn {
+    animation: btnBurst 1s cubic-bezier(.6,0,.2,1) forwards !important;
+    background: var(--rose);
+    border-color: var(--rose);
+  }
+  .intro.opening .unlock-btn .shackle { transform: rotate(-40deg) translateX(-3px); }
+  .intro.opening .unlock-btn svg { transform: scale(1.15); }
+  @keyframes btnBurst {
+    0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(217,154,164,0.7); }
+    30%  { transform: scale(1.25); box-shadow: 0 0 0 20px rgba(217,154,164,0.4); }
+    100% { transform: scale(30); box-shadow: 0 0 0 300px rgba(217,154,164,0); opacity: 0; }
+  }
+  .intro.opening .intro-title span,
+  .intro.opening .intro-hint,
+  .intro.opening .hanging-heart { animation: fadeUpOut .5s ease forwards !important; }
+  @keyframes fadeUpOut {
+    to { opacity: 0; transform: translateY(-16px); }
+  }
   @keyframes pulseRing {
     0%, 100% { box-shadow: 0 0 0 0 rgba(217,154,164,0.5); }
     50% { box-shadow: 0 0 0 18px rgba(217,154,164,0); }
@@ -446,6 +481,30 @@
   .btn.primary:hover { background: transparent; color: var(--ink); }
 
   /* venue */
+  .venue-illustration {
+    display: block;
+    max-width: 320px;
+    width: 100%;
+    height: auto;
+    margin: 8px auto 18px;
+    color: var(--rose);
+    opacity: 0.85;
+    filter: drop-shadow(0 4px 20px rgba(217,154,164,0.15));
+  }
+  .venue-illustration line,
+  .venue-illustration rect,
+  .venue-illustration path,
+  .venue-illustration circle {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .reveal.in .venue-illustration line,
+  .reveal.in .venue-illustration rect,
+  .reveal.in .venue-illustration path,
+  .reveal.in .venue-illustration circle {
+    animation: drawStroke 2.2s ease forwards;
+  }
+  @keyframes drawStroke { to { stroke-dashoffset: 0; } }
   .venue-name { font-family: var(--serif); font-size: clamp(28px, 4.5vw, 40px); margin: 12px 0 8px; text-transform: uppercase; letter-spacing: 0.04em; }
   .venue-meta { color: var(--ink-dim); font-family: var(--serif); font-size: 18px; font-style: italic; line-height: 1.8; }
 
@@ -570,9 +629,9 @@
       <span>Keldi</span>
     </h1>
     <button class="unlock-btn" id="unlockBtn" aria-label="Taklifnomani ochish">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
         <rect x="5" y="11" width="14" height="10" rx="2"/>
-        <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+        <path class="shackle" d="M8 11V7a4 4 0 0 1 8 0v4"/>
       </svg>
     </button>
     <div class="intro-hint">Bosing va oching</div>
@@ -692,6 +751,74 @@
 <section class="block">
   <div class="container reveal">
     <div class="eyebrow">To'y manzili</div>
+    <svg class="venue-illustration" viewBox="0 0 280 140" fill="none" stroke="currentColor" stroke-width="1" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <!-- ground line -->
+      <line x1="10" y1="130" x2="270" y2="130" stroke-width="0.8"/>
+      <!-- steps -->
+      <path d="M100 130 L100 122 L180 122 L180 130 M110 122 L110 116 L170 116 L170 122" stroke-width="0.8"/>
+      <!-- base platform -->
+      <rect x="40" y="100" width="200" height="16"/>
+      <!-- columns -->
+      <line x1="55" y1="100" x2="55" y2="50"/>
+      <line x1="60" y1="100" x2="60" y2="50"/>
+      <line x1="85" y1="100" x2="85" y2="50"/>
+      <line x1="90" y1="100" x2="90" y2="50"/>
+      <line x1="115" y1="100" x2="115" y2="50"/>
+      <line x1="120" y1="100" x2="120" y2="50"/>
+      <line x1="160" y1="100" x2="160" y2="50"/>
+      <line x1="165" y1="100" x2="165" y2="50"/>
+      <line x1="190" y1="100" x2="190" y2="50"/>
+      <line x1="195" y1="100" x2="195" y2="50"/>
+      <line x1="220" y1="100" x2="220" y2="50"/>
+      <line x1="225" y1="100" x2="225" y2="50"/>
+      <!-- column bases -->
+      <rect x="52" y="97" width="11" height="4"/>
+      <rect x="82" y="97" width="11" height="4"/>
+      <rect x="112" y="97" width="11" height="4"/>
+      <rect x="157" y="97" width="11" height="4"/>
+      <rect x="187" y="97" width="11" height="4"/>
+      <rect x="217" y="97" width="11" height="4"/>
+      <!-- column tops -->
+      <rect x="52" y="48" width="11" height="4"/>
+      <rect x="82" y="48" width="11" height="4"/>
+      <rect x="112" y="48" width="11" height="4"/>
+      <rect x="157" y="48" width="11" height="4"/>
+      <rect x="187" y="48" width="11" height="4"/>
+      <rect x="217" y="48" width="11" height="4"/>
+      <!-- upper facade / entablature -->
+      <rect x="40" y="38" width="200" height="12"/>
+      <line x1="40" y1="42" x2="240" y2="42" stroke-width="0.5"/>
+      <!-- central dome / rotunda -->
+      <path d="M115 38 Q140 8 165 38" />
+      <line x1="115" y1="38" x2="165" y2="38" stroke-width="0.5"/>
+      <line x1="140" y1="10" x2="140" y2="4"/>
+      <circle cx="140" cy="3" r="1.5" fill="currentColor"/>
+      <!-- roof balustrade -->
+      <line x1="42" y1="34" x2="115" y2="34"/>
+      <line x1="165" y1="34" x2="238" y2="34"/>
+      <line x1="50" y1="34" x2="50" y2="38"/>
+      <line x1="65" y1="34" x2="65" y2="38"/>
+      <line x1="80" y1="34" x2="80" y2="38"/>
+      <line x1="95" y1="34" x2="95" y2="38"/>
+      <line x1="110" y1="34" x2="110" y2="38"/>
+      <line x1="170" y1="34" x2="170" y2="38"/>
+      <line x1="185" y1="34" x2="185" y2="38"/>
+      <line x1="200" y1="34" x2="200" y2="38"/>
+      <line x1="215" y1="34" x2="215" y2="38"/>
+      <line x1="230" y1="34" x2="230" y2="38"/>
+      <!-- side windows -->
+      <rect x="45" y="62" width="6" height="18"/>
+      <rect x="66" y="62" width="6" height="18"/>
+      <rect x="96" y="62" width="6" height="18"/>
+      <rect x="126" y="62" width="6" height="18"/>
+      <rect x="148" y="62" width="6" height="18"/>
+      <rect x="170" y="62" width="6" height="18"/>
+      <rect x="200" y="62" width="6" height="18"/>
+      <rect x="228" y="62" width="6" height="18"/>
+      <!-- central grand door -->
+      <path d="M132 100 L132 78 Q140 68 148 78 L148 100 Z"/>
+      <line x1="140" y1="70" x2="140" y2="100" stroke-width="0.5"/>
+    </svg>
     <h2 class="venue-name">"Davr" to'yxonasi</h2>
     <div class="divider"><span class="l"></span></div>
     <div class="venue-meta">
@@ -701,27 +828,6 @@
     <div class="btn-row">
       <a class="btn" href="https://yandex.uz/maps/?text=Davr+toyxonasi+Uchkoprik" target="_blank" rel="noopener">Yandex xaritasi</a>
       <a class="btn primary" href="https://maps.google.com/?q=Davr+toyxonasi+Uchkoprik+Fargona" target="_blank" rel="noopener">Google Maps</a>
-    </div>
-  </div>
-</section>
-
-<!-- GIFT -->
-<section class="block">
-  <div class="container reveal">
-    <div class="eyebrow">To'yona</div>
-    <h2 class="headline">Sovg'a uchun</h2>
-    <p class="letter-text" style="font-size: 17px;">Agar istasangiz, to'yonani kuyov kartasiga yuborishingiz mumkin.</p>
-    <div class="gift-card">
-      <div class="gc-row">
-        <span class="gc-label">Qabul qiluvchi</span>
-        <span class="gc-value">Dilmurod</span>
-      </div>
-      <div class="gc-row">
-        <span class="gc-label">Karta raqami</span>
-      </div>
-      <div class="gc-number" id="cardNum">8600 0000 0000 0000</div>
-      <button class="btn primary" style="width: 100%; justify-content: center;" onclick="copyCard()">Raqamni nusxalash</button>
-      <div class="copy-msg" id="copyMsg">Bir bosishda nusxalash mumkin</div>
     </div>
   </div>
 </section>
@@ -743,6 +849,11 @@
 </audio>
 
 <script>
+  // normalize venue SVG stroke lengths so animation completes fully
+  document.querySelectorAll('.venue-illustration line, .venue-illustration rect, .venue-illustration path, .venue-illustration circle').forEach(el => {
+    el.setAttribute('pathLength', '1');
+  });
+
   // hearts
   const heartsHost = document.getElementById('hearts');
   const heartSVG = '<svg width="16" height="14" viewBox="0 0 24 20" fill="currentColor"><path d="M12 20s-8-5.3-8-11.5C4 4.5 6.9 2 10 2c1.6 0 3 .7 4 1.9C15 2.7 16.4 2 18 2c3.1 0 6 2.5 6 6.5C22 14.7 12 20 12 20z" transform="translate(-2 0)"/></svg>';
@@ -838,14 +949,19 @@
   window.addEventListener('touchmove', blockScroll, { passive: false });
 
   function unlockInvite() {
-    if (intro.classList.contains('open')) return;
-    intro.classList.add('open');
-    document.documentElement.classList.remove('locked');
-    document.body.classList.remove('locked');
+    if (intro.classList.contains('open') || intro.classList.contains('opening')) return;
+    intro.classList.add('opening');
+    // start music immediately on user gesture
     audio.play().then(() => {
       audioReady = true;
       musicBtn.classList.add('playing');
     }).catch(() => {});
+    // small haptic-like delay before the big transition
+    setTimeout(() => {
+      intro.classList.add('open');
+      document.documentElement.classList.remove('locked');
+      document.body.classList.remove('locked');
+    }, 700);
   }
   unlockBtn.addEventListener('click', unlockInvite);
 
