@@ -549,6 +549,58 @@
     pointer-events: none;
   }
 
+  /* wishes / tabriklar */
+  .wish-form {
+    max-width: 480px; margin: 0 auto 40px;
+    display: grid; gap: 16px;
+    text-align: left;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .wf-row { display: grid; gap: 6px; }
+  .wish-form label { font-family: var(--sans); text-transform: uppercase; font-size: 10px; letter-spacing: 0.24em; color: var(--muted); }
+  .wish-form input, .wish-form textarea {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    outline: none;
+    transition: border-color .3s ease, background .3s ease;
+    width: 100%;
+    resize: vertical;
+  }
+  .wish-form input:focus, .wish-form textarea:focus { border-color: var(--rose); background: rgba(217,154,164,0.04); }
+  .wish-form textarea { min-height: 96px; font-family: var(--serif); line-height: 1.5; }
+  .wish-form .btn { justify-content: center; margin-top: 4px; }
+  .wf-status { min-height: 20px; text-align: center; font-size: 13px; font-family: var(--sans); color: var(--muted); letter-spacing: 0.05em; }
+  .wf-status.ok { color: var(--rose); }
+  .wf-status.err { color: #d05555; }
+
+  .wishes-list { display: grid; gap: 14px; max-width: 620px; margin: 0 auto; text-align: left; }
+  .wishes-empty { text-align: center; color: var(--muted); font-style: italic; padding: 20px; font-family: var(--serif); font-size: 16px; }
+  .wish-item {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+    position: relative;
+    animation: wishIn .5s cubic-bezier(.2,.7,.2,1);
+  }
+  @keyframes wishIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  .wish-item::before {
+    content: "❞"; position: absolute; top: 6px; right: 14px;
+    color: var(--rose); font-size: 28px; opacity: 0.4; font-family: var(--serif);
+  }
+  .wi-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+  .wi-name { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 500; text-transform: capitalize; }
+  .wi-time { font-family: var(--sans); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .wi-msg { font-family: var(--serif); color: var(--ink-dim); font-size: 16px; line-height: 1.6; font-style: italic; white-space: pre-wrap; word-wrap: break-word; }
+
   /* footer */
   footer { padding: 60px 20px 40px; text-align: center; color: var(--muted); font-family: var(--sans); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; }
   footer .sig { font-family: var(--serif); font-size: 20px; color: var(--ink); text-transform: none; letter-spacing: 0.05em; font-style: italic; margin-bottom: 14px; }
@@ -832,6 +884,37 @@
   </div>
 </section>
 
+<!-- WISHES / TABRIKLAR -->
+<section class="block" id="wishes">
+  <div class="container reveal">
+    <div class="eyebrow">Tabriklar</div>
+    <h2 class="headline">Yaxshi tilaklaringiz</h2>
+    <div class="divider">
+      <span class="l"></span>
+      <svg width="14" height="12" viewBox="0 0 24 20" fill="currentColor"><path d="M12 20s-8-5.3-8-11.5C4 4.5 6.9 2 10 2c1.6 0 3 .7 4 1.9C15 2.7 16.4 2 18 2c3.1 0 6 2.5 6 6.5C22 14.7 12 20 12 20z" transform="translate(-2 0)"/></svg>
+      <span class="l"></span>
+    </div>
+    <p class="letter-text" style="font-size: 17px; margin-bottom: 32px;">Bizga bo'lgan yaxshi tilaklaringizni yozib qoldiring — bu biz uchun eng qadrli sovg'a bo'ladi.</p>
+
+    <form class="wish-form" id="wishForm" autocomplete="off">
+      <div class="wf-row">
+        <label for="wfName">Ismingiz</label>
+        <input id="wfName" name="name" type="text" required maxlength="50" placeholder="Familiya Ism">
+      </div>
+      <div class="wf-row">
+        <label for="wfMsg">Tilagingiz</label>
+        <textarea id="wfMsg" name="message" required maxlength="500" rows="4" placeholder="Baxtli bo'linglar, yosh oila!"></textarea>
+      </div>
+      <button class="btn primary" type="submit" id="wfBtn">Yuborish ♡</button>
+      <div class="wf-status" id="wfStatus"></div>
+    </form>
+
+    <div class="wishes-list" id="wishesList">
+      <div class="wishes-empty" id="wishesEmpty">Hozircha tilaklar yo'q — birinchi bo'ling ♡</div>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 <footer>
   <div class="sig">Sizni kutib qolamiz</div>
@@ -847,6 +930,113 @@
 <audio id="bgAudio" loop preload="auto">
   <source src="./music.mp3" type="audio/mpeg">
 </audio>
+
+<!-- Firebase (wishes) -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAqRUN0hQgDajcxamvAocDs2ToP6tK_JHw",
+    authDomain: "taklifnoma-3aeb7.firebaseapp.com",
+    databaseURL: "https://taklifnoma-3aeb7-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "taklifnoma-3aeb7",
+    storageBucket: "taklifnoma-3aeb7.firebasestorage.app",
+    messagingSenderId: "3706997861",
+    appId: "1:3706997861:web:2b81e36b01a2f99b094a8c",
+    measurementId: "G-KP3E378DN0"
+  };
+
+  const form = document.getElementById('wishForm');
+  const list = document.getElementById('wishesList');
+  const empty = document.getElementById('wishesEmpty');
+  const status = document.getElementById('wfStatus');
+  const btn = document.getElementById('wfBtn');
+
+  if (firebaseConfig.apiKey === "REPLACE_ME") {
+    // Fallback: LocalStorage rejimi (Firebase sozlanmagan)
+    const KEY = 'wedding_wishes_v1';
+    const load = () => JSON.parse(localStorage.getItem(KEY) || '[]');
+    const save = arr => localStorage.setItem(KEY, JSON.stringify(arr));
+    const render = () => {
+      const items = load().sort((a,b) => b.time - a.time);
+      list.querySelectorAll('.wish-item').forEach(n => n.remove());
+      empty.style.display = items.length ? 'none' : 'block';
+      items.forEach(w => list.appendChild(makeItem(w)));
+    };
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const message = form.message.value.trim();
+      if (!name || !message) return;
+      const items = load();
+      items.push({ name, message, time: Date.now() });
+      save(items);
+      form.reset();
+      status.textContent = "Tilagingiz saqlandi ♡ (mahalliy — Firebase sozlanmagan)";
+      status.className = 'wf-status ok';
+      render();
+      setTimeout(() => { status.textContent = ''; status.className = 'wf-status'; }, 4000);
+    });
+    render();
+  } else {
+    // Firebase Firestore rejimi
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const col = collection(db, 'wishes');
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const message = form.message.value.trim();
+      if (!name || !message) return;
+      btn.disabled = true;
+      status.textContent = "Yuborilmoqda...";
+      status.className = 'wf-status';
+      try {
+        await addDoc(col, { name, message, createdAt: serverTimestamp() });
+        form.reset();
+        status.textContent = "Tilagingiz uchun rahmat ♡";
+        status.className = 'wf-status ok';
+      } catch (err) {
+        console.error(err);
+        status.textContent = "Xatolik: qayta urinib ko'ring";
+        status.className = 'wf-status err';
+      } finally {
+        btn.disabled = false;
+        setTimeout(() => { status.textContent = ''; status.className = 'wf-status'; }, 4000);
+      }
+    });
+
+    onSnapshot(query(col, orderBy('createdAt', 'desc')), snap => {
+      list.querySelectorAll('.wish-item').forEach(n => n.remove());
+      empty.style.display = snap.empty ? 'block' : 'none';
+      snap.forEach(doc => {
+        const d = doc.data();
+        list.appendChild(makeItem({ name: d.name, message: d.message, time: d.createdAt?.toMillis?.() || Date.now() }));
+      });
+    }, err => {
+      console.error(err);
+      empty.textContent = 'Tabriklar yuklanmadi. Internetni tekshiring.';
+      empty.style.display = 'block';
+    });
+  }
+
+  function makeItem({ name, message, time }) {
+    const el = document.createElement('div');
+    el.className = 'wish-item';
+    const safe = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const timeStr = new Date(time).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    el.innerHTML = `
+      <div class="wi-head">
+        <div class="wi-name">${safe(name)}</div>
+        <div class="wi-time">${timeStr}</div>
+      </div>
+      <div class="wi-msg">${safe(message)}</div>
+    `;
+    return el;
+  }
+</script>
 
 <script>
   // normalize venue SVG stroke lengths so animation completes fully
