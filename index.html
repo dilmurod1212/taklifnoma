@@ -577,7 +577,8 @@
   .wish-form input:focus, .wish-form textarea:focus { border-color: var(--rose); background: rgba(217,154,164,0.04); }
   .wish-form textarea { min-height: 96px; font-family: var(--serif); line-height: 1.5; }
   .wish-form .btn { justify-content: center; margin-top: 4px; }
-  .wf-status { min-height: 20px; text-align: center; font-size: 13px; font-family: var(--sans); color: var(--muted); letter-spacing: 0.05em; }
+  .wf-status { text-align: center; font-size: 13px; font-family: var(--sans); color: var(--muted); letter-spacing: 0.05em; }
+  .wf-status:empty { display: none; }
   .wf-status.ok { color: var(--rose); }
   .wf-status.err { color: #d05555; }
 
@@ -874,12 +875,11 @@
     <h2 class="venue-name">"Davr" to'yxonasi</h2>
     <div class="divider"><span class="l"></span></div>
     <div class="venue-meta">
-      Vaqti: <strong style="color: var(--ink); font-style: normal;">18:00</strong><br/>
       Manzil: Farg'ona viloyati,<br/>Uchko'prik tumani
     </div>
     <div class="btn-row">
-      <a class="btn" href="https://yandex.uz/maps/?text=Davr+toyxonasi+Uchkoprik" target="_blank" rel="noopener">Yandex xaritasi</a>
-      <a class="btn primary" href="https://maps.google.com/?q=Davr+toyxonasi+Uchkoprik+Fargona" target="_blank" rel="noopener">Google Maps</a>
+      <a class="btn" href="https://yandex.uz/maps/?ll=71.042543%2C40.543381&z=18&pt=71.042543%2C40.543381,pm2rdm" target="_blank" rel="noopener">Yandex xaritasi</a>
+      <a class="btn primary" href="https://www.google.com/maps/place/40%C2%B032'36.2%22N+71%C2%B002'33.4%22E/@40.5433973,71.0426238,18z" target="_blank" rel="noopener">Google Maps</a>
     </div>
   </div>
 </section>
@@ -903,7 +903,7 @@
       </div>
       <div class="wf-row">
         <label for="wfMsg">Tilagingiz</label>
-        <textarea id="wfMsg" name="message" required maxlength="500" rows="4" placeholder="Baxtli bo'linglar, yosh oila!"></textarea>
+        <textarea id="wfMsg" name="message" required maxlength="500" rows="4" placeholder="Yaxshi tilaklaringizni yozing...">Baxtli bo'linglar</textarea>
       </div>
       <button class="btn primary" type="submit" id="wfBtn">Yuborish ♡</button>
       <div class="wf-status" id="wfStatus"></div>
